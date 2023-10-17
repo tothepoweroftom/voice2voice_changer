@@ -7,7 +7,7 @@ import torch
 from data.ModelSlot import RVCModelSlot
 from mods.log_control import VoiceChangaerLogger
 
-from RVCSettings import RVCSettings
+from RVC.RVCSettings import RVCSettings
 from embedder.EmbedderManager import EmbedderManager
 from utils.VoiceChangerModel import AudioInOut, PitchfInOut, FeatureInOut, VoiceChangerModel
 from utils.VoiceChangerParams import VoiceChangerParams
