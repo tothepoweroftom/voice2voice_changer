@@ -46,7 +46,7 @@ class RVCr2(VoiceChangerModel):
     def initialize(self):
         logger.info("[Voice Changer][RVCr2] Initializing... ")
 
-        # pipelineの生成
+        # Generate pipeline
         try:
             self.pipeline = createPipeline(self.params, self.slotInfo, self.settings.gpu, self.settings.f0Detector)
             print("pipeline created in RVCr2")
@@ -54,7 +54,7 @@ class RVCr2(VoiceChangerModel):
             logger.error("[Voice Changer] pipeline create failed. check your model is valid.")
             return
 
-        # その他の設定
+        # Other settings
         self.settings.tran = self.slotInfo.defaultTune
         self.settings.indexRatio = self.slotInfo.defaultIndexRatio
         self.settings.protect = self.slotInfo.defaultProtect
@@ -102,7 +102,7 @@ class RVCr2(VoiceChangerModel):
         solaSearchFrame: int,
         extra_frame: int
     ):
-        # 16k で入ってくる。
+        # It comes in at 16k.
         inputSize = newData.shape[0]
         newData = newData.astype(np.float32) / 32768.0
         newFeatureLength = inputSize // 160  # hopsize:=160
@@ -121,26 +121,26 @@ class RVCr2(VoiceChangerModel):
 
         convertSize = inputSize + crossfadeSize + solaSearchFrame + extra_frame
 
-        if convertSize % 160 != 0:  # モデルの出力のホップサイズで切り捨てが発生するので補う。
+        if convertSize % 160 != 0:  # Compensate for truncation that occurs in the hop size of the model output.
             convertSize = convertSize + (160 - (convertSize % 160))
         outSize = int(((convertSize - extra_frame) / 16000) * self.slotInfo.samplingRate) 
 
-        # バッファがたまっていない場合はzeroで補う
+        # If the buffer is not full, fill it with zero
         if self.audio_buffer.shape[0] < convertSize:
             self.audio_buffer = np.concatenate([np.zeros([convertSize]), self.audio_buffer])
             if self.slotInfo.f0:
                 self.pitchf_buffer = np.concatenate([np.zeros([convertSize // 160]), self.pitchf_buffer])
             self.feature_buffer = np.concatenate([np.zeros([convertSize // 160, self.slotInfo.embChannels]), self.feature_buffer])
 
-        # 不要部分をトリミング
+        # Trim unnecessary parts
         convertOffset = -1 * convertSize
         featureOffset = convertOffset // 160
-        self.audio_buffer = self.audio_buffer[convertOffset:]  # 変換対象の部分だけ抽出
+        self.audio_buffer = self.audio_buffer[convertOffset:]  # Extract only the part to be converted
         if self.slotInfo.f0:
             self.pitchf_buffer = self.pitchf_buffer[featureOffset:]
         self.feature_buffer = self.feature_buffer[featureOffset:]
 
-        # 出力部分だけ切り出して音量を確認。(TODO:段階的消音にする)
+        # Cut out only the output part and check the volume.(TODO:mute in stages)
         cropOffset = -1 * (inputSize + crossfadeSize)
         cropEnd = -1 * (crossfadeSize)
         crop = self.audio_buffer[cropOffset:cropEnd]
@@ -155,7 +155,7 @@ class RVCr2(VoiceChangerModel):
             logger.info("[Voice Changer] Pipeline is not initialized.")
             raise PipelineNotInitializedException()
 
-        # 処理は16Kで実施(Pitch, embed, (infer))
+        # Processing is done at 16K (Pitch, embed, (infer))
         receivedData = cast(
             AudioInOut,
             resampy.resample(
@@ -168,7 +168,7 @@ class RVCr2(VoiceChangerModel):
         sola_search_frame = int((sola_search_frame / self.inputSampleRate) * 16000)
         extra_frame = int((self.settings.extraConvertSize / self.inputSampleRate) * 16000)
 
-        # 入力データ生成
+        # Generate input data
         data = self.generate_input(receivedData, crossfade_frame, sola_search_frame, extra_frame)
 
         audio = data[0]
@@ -204,7 +204,7 @@ class RVCr2(VoiceChangerModel):
                 index_rate,
                 if_f0,
                 # 0,
-                self.settings.extraConvertSize / self.inputSampleRate if self.settings.silenceFront else 0.,  # extaraDataSizeの秒数。入力のサンプリングレートで算出
+                self.settings.extraConvertSize / self.inputSampleRate if self.settings.silenceFront else 0.,  # extaraDataSize in seconds. Calculated based on input sampling rate
                 embOutputLayer,
                 useFinalProj,
                 repeat,
