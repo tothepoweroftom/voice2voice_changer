@@ -8,3 +8,4 @@ fairseq==0.12.2
 onnx==1.14.1
 onnxsim==0.4.33
 sounddevice==0.4.6
+# sudo apt-get install portaudio19-dev python-all-dev
