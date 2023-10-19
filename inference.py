@@ -74,8 +74,8 @@ voiceChangerParams = VoiceChangerParams(
     rmvpe_onnx=args.rmvpe_onnx,
     sample_mode=args.sample_mode,
 )
-vcparams = VoiceChangerParamsManager.get_instance()
-vcparams.setParams(voiceChangerParams)
+# vcparams = VoiceChangerParamsManager.get_instance()
+# vcparams.setParams(voiceChangerParams)
 
 if __name__ == "__main__":
     # Download weights
@@ -90,4 +90,21 @@ if __name__ == "__main__":
     except Exception as e:
         printMessage(f"[Voice Changer] loading sample failed {e}", level=2)
 
+    #create fake model slot #TODO: handle model slot management
+    slotInfo: RVCModelSlot = RVCModelSlot(
+        slotIndex=0, 
+        modelFile="tsukuyomi_v2_40k_e100_simple.onnx",
+        modelType="onnxRVC",
+        isONNX=True
+    )
     
+    # Load model
+    voiceChangerModel = RVCr2(voiceChangerParams, slotInfo)
+    voiceChangerModel.initialize()
+    voiceChangerModel.update_settings("gpu", 0) # need to know where handle gpu
+    
+    # Fake input output SampleRate
+    voiceChangerModel.setSamplingRate(48000, 48000)
+    
+    
+
