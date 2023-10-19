@@ -17,7 +17,6 @@ __pycache__
 /G_*.pth
 /train_config.json
 /stored_setting.json
-# v.1.3.xテスト用モデルフォルダ
 /v13
 
 /model_hubert
@@ -36,7 +35,7 @@ model_DDSP-SVC/
 
 client/lib/dist
 client/lib/worklet/dist
-# client/demo/dist/ # demo用に残す
+# client/demo/dist/ 
 
 docker/cudnn/
 
