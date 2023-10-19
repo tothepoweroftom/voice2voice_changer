@@ -2,6 +2,7 @@ import librosa
 import soundfile as sf
 import numpy as np
 from Exceptions import WeightDownladException
+from VoiceChangerManager import VoiceChangerManager
 from downloader.SampleDownloader import downloadInitialSamples
 from downloader.WeightDownloader import downloadWeight
 import argparse
@@ -96,24 +97,21 @@ voiceChangerParams = VoiceChangerParams(
 # vcparams = VoiceChangerParamsManager.get_instance()
 # vcparams.setParams(voiceChangerParams)
 
-audio_path = "test_1.wav"
+warmup_audio = "test_1.wav"
+audio_path = "test_3.wav"
 receivedData: AudioInOut = None
 
 
 def preProcessAudio(audio_path: str, gain: float = 1.0) -> AudioInOut:
     # Load the audio file
     audio_data, sr = sf.read(audio_path, dtype='float32')
-    print(audio_data.shape)
     # Apply gain
     audio_data = audio_data * gain
-    print(audio_data.shape)
 
     # Convert to mono if stereo
     mono_audio = librosa.to_mono(audio_data.T)
-    print(mono_audio.shape)
     # Scale and convert to int16
     int16_audio = (mono_audio * 32768.0).astype(np.int16)
-    print(int16_audio.shape)
     return int16_audio, sr
 
 
@@ -131,6 +129,7 @@ if __name__ == "__main__":
         printMessage(f"[Voice Changer] loading sample failed {e}", level=2)
 
     # Prprocess audio
+    warmup_data, _ = preProcessAudio(warmup_audio)
     receivedData, sr = preProcessAudio(audio_path)
 
     # create fake model slot #TODO: handle model slot management
@@ -141,16 +140,14 @@ if __name__ == "__main__":
         isONNX=True
     )
 
-    # Load model
-    voiceChangerModel = RVCr2(voiceChangerParams, slotInfo)
-    voiceChangerModel.initialize()
-    # need to know where handle gpu
-    voiceChangerModel.update_settings("gpu", 0)
-
-    # Fake input output SampleRate
-    voiceChangerModel.setSamplingRate(48000, 48000)
-
-
-    # Inference
-    result = voiceChangerModel.inference(
-        receivedData, crossfade_frame=0, sola_search_frame=0)
+    voiceChangerManager = VoiceChangerManager.get_instance(voiceChangerParams)
+    voiceChangerManager.update_settings("serverReadChunkSize", 1024) # update chunk size
+    voiceChangerManager.update_settings("tran", 22) # update tune
+    # The firt time is warm up
+    output, perf = voiceChangerManager.changeVoice(warmup_data) # perf = [0, mainprocess_time, postprocess_time]
+    print("Warm up done")
+    output, perf = voiceChangerManager.changeVoice(receivedData) # perf = [0, mainprocess_time, postprocess_time]
+    output_path = "output.wav"
+    output_array_float = output.astype(np.float32) / 32768.0
+    sf.write(output_path, output_array_float, sr)
+    print("Done")
