@@ -8,14 +8,14 @@ from data.ModelSlot import RVCModelSlot
 from mods.log_control import VoiceChangaerLogger
 
 from RVC.RVCSettings import RVCSettings
-from embedder.EmbedderManager import EmbedderManager
+from RVC.embedder.EmbedderManager import EmbedderManager
 from utils.VoiceChangerModel import AudioInOut, PitchfInOut, FeatureInOut, VoiceChangerModel
 from utils.VoiceChangerParams import VoiceChangerParams
-from onnxExporter.export2onnx import export2onnx
-from pitchExtractor.PitchExtractorManager import PitchExtractorManager
-from pipeline.PipelineGenerator import createPipeline
-from deviceManager.DeviceManager import DeviceManager
-from pipeline.Pipeline import Pipeline
+from RVC.onnxExporter.export2onnx import export2onnx
+from RVC.pitchExtractor.PitchExtractorManager import PitchExtractorManager
+from RVC.pipeline.PipelineGenerator import createPipeline
+from RVC.deviceManager.DeviceManager import DeviceManager
+from RVC.pipeline.Pipeline import Pipeline
 
 from Exceptions import DeviceCannotSupportHalfPrecisionException, PipelineCreateException, PipelineNotInitializedException
 import resampy

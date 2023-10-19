@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from const import EnumInferenceTypes
 
-from inferencer.OnnxRVCInferencer import OnnxRVCInferencer
+from RVC.inferencer.OnnxRVCInferencer import OnnxRVCInferencer
 
 
 class OnnxRVCInferencerNono(OnnxRVCInferencer):

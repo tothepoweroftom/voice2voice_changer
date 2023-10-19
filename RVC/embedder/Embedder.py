@@ -4,7 +4,7 @@ import torch
 from torch import device
 
 from const import EmbedderType
-from embedder.EmbedderProtocol import EmbedderProtocol
+from RVC.embedder.EmbedderProtocol import EmbedderProtocol
 
 
 class Embedder(EmbedderProtocol):

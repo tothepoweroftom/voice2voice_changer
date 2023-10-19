@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 
-from pitchExtractor import onnxcrepe
+from RVC.pitchExtractor import onnxcrepe
 
 
 ###############################################################################

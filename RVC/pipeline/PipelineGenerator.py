@@ -4,11 +4,11 @@ import faiss
 from Exceptions import PipelineCreateException
 from data.ModelSlot import RVCModelSlot
 
-from deviceManager.DeviceManager import DeviceManager
-from embedder.EmbedderManager import EmbedderManager
-from inferencer.InferencerManager import InferencerManager
-from pipeline.Pipeline import Pipeline
-from pitchExtractor.PitchExtractorManager import PitchExtractorManager
+from RVC.deviceManager.DeviceManager import DeviceManager
+from RVC.embedder.EmbedderManager import EmbedderManager
+from RVC.inferencer.InferencerManager import InferencerManager
+from RVC.pipeline.Pipeline import Pipeline
+from RVC.pitchExtractor.PitchExtractorManager import PitchExtractorManager
 from utils.VoiceChangerParams import VoiceChangerParams
 
 

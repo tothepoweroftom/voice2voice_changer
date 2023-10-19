@@ -2,7 +2,7 @@ import numpy as np
 from const import PitchExtractorType
 from DiffusionSVC.pitchExtractor.PitchExtractor import PitchExtractor
 from DiffusionSVC.pitchExtractor.rmvpe.rmvpe import RMVPE
-from deviceManager.DeviceManager import DeviceManager
+from RVC.deviceManager.DeviceManager import DeviceManager
 
 
 class RMVPEPitchExtractor(PitchExtractor):

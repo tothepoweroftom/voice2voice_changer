@@ -1,6 +1,6 @@
 import torch
 from torch import device
-from embedder.Embedder import Embedder
+from RVC.embedder.Embedder import Embedder
 from fairseq import checkpoint_utils
 
 

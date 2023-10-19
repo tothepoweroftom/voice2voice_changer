@@ -2,7 +2,7 @@ import numpy as np
 from const import PitchExtractorType
 from DiffusionSVC.pitchExtractor.PitchExtractor import PitchExtractor
 # why is this import PitchExtractor from DiffusionSVC but not from RVC?
-from deviceManager.DeviceManager import DeviceManager
+from RVC.deviceManager.DeviceManager import DeviceManager
 import onnxruntime
 
 

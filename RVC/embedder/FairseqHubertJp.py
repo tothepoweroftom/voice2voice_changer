@@ -1,6 +1,6 @@
 from torch import device
-from embedder.Embedder import Embedder
-from embedder.FairseqHubert import FairseqHubert
+from RVC.embedder.Embedder import Embedder
+from RVC.embedder.FairseqHubert import FairseqHubert
 
 
 class FairseqHubertJp(FairseqHubert):

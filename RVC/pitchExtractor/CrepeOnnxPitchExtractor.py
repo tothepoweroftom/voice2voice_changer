@@ -1,9 +1,9 @@
 import numpy as np
 from const import PitchExtractorType
-from deviceManager.DeviceManager import DeviceManager
-from pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.deviceManager.DeviceManager import DeviceManager
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 import onnxruntime
-from pitchExtractor import onnxcrepe
+from RVC.pitchExtractor import onnxcrepe
 
 
 class CrepeOnnxPitchExtractor(PitchExtractor):

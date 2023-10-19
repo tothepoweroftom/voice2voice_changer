@@ -1,12 +1,12 @@
 from typing import Protocol
 from const import PitchExtractorType
-from pitchExtractor.CrepeOnnxPitchExtractor import CrepeOnnxPitchExtractor
-from pitchExtractor.DioPitchExtractor import DioPitchExtractor
-from pitchExtractor.HarvestPitchExtractor import HarvestPitchExtractor
-from pitchExtractor.CrepePitchExtractor import CrepePitchExtractor
-from pitchExtractor.PitchExtractor import PitchExtractor
-from pitchExtractor.RMVPEOnnxPitchExtractor import RMVPEOnnxPitchExtractor
-from pitchExtractor.RMVPEPitchExtractor import RMVPEPitchExtractor
+from RVC.pitchExtractor.CrepeOnnxPitchExtractor import CrepeOnnxPitchExtractor
+from RVC.pitchExtractor.DioPitchExtractor import DioPitchExtractor
+from RVC.pitchExtractor.HarvestPitchExtractor import HarvestPitchExtractor
+from RVC.pitchExtractor.CrepePitchExtractor import CrepePitchExtractor
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.pitchExtractor.RMVPEOnnxPitchExtractor import RMVPEOnnxPitchExtractor
+from RVC.pitchExtractor.RMVPEPitchExtractor import RMVPEPitchExtractor
 from utils.VoiceChangerParams import VoiceChangerParams
 
 
