@@ -1,9 +1,14 @@
 {
     "files.associations": {
-      "*.css": "postcss"
+        "*.css": "postcss"
     },
     "workbench.colorCustomizations": {
-      "tab.activeBackground": "#65952acc"
+        "tab.activeBackground": "#65952acc"
     },
-    "python.linting.enabled": false
-  }
+    "python.linting.enabled": false,
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

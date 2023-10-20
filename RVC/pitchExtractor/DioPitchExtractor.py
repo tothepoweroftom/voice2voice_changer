@@ -2,7 +2,7 @@ import pyworld
 import numpy as np
 from const import PitchExtractorType
 
-from pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 
 
 class DioPitchExtractor(PitchExtractor):

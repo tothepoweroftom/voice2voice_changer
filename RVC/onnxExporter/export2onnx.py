@@ -5,23 +5,23 @@ from onnxsim import simplify
 import onnx
 from const import TMP_DIR, EnumInferenceTypes
 from data.ModelSlot import RVCModelSlot
-from deviceManager.DeviceManager import DeviceManager
-from onnxExporter.SynthesizerTrnMs256NSFsid_ONNX import (
+from RVC.deviceManager.DeviceManager import DeviceManager
+from RVC.onnxExporter.SynthesizerTrnMs256NSFsid_ONNX import (
     SynthesizerTrnMs256NSFsid_ONNX,
 )
-from onnxExporter.SynthesizerTrnMs256NSFsid_nono_ONNX import (
+from RVC.onnxExporter.SynthesizerTrnMs256NSFsid_nono_ONNX import (
     SynthesizerTrnMs256NSFsid_nono_ONNX,
 )
-from onnxExporter.SynthesizerTrnMs768NSFsid_ONNX import (
+from RVC.onnxExporter.SynthesizerTrnMs768NSFsid_ONNX import (
     SynthesizerTrnMs768NSFsid_ONNX,
 )
-from onnxExporter.SynthesizerTrnMs768NSFsid_nono_ONNX import (
+from RVC.onnxExporter.SynthesizerTrnMs768NSFsid_nono_ONNX import (
     SynthesizerTrnMs768NSFsid_nono_ONNX,
 )
-from onnxExporter.SynthesizerTrnMsNSFsidNono_webui_ONNX import (
+from RVC.onnxExporter.SynthesizerTrnMsNSFsidNono_webui_ONNX import (
     SynthesizerTrnMsNSFsidNono_webui_ONNX,
 )
-from onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
+from RVC.onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
     SynthesizerTrnMsNSFsid_webui_ONNX,
 )
 from VoiceChangerParamsManager import VoiceChangerParamsManager

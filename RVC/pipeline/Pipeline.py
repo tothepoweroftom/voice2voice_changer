@@ -12,12 +12,12 @@ from Exceptions import (
 )
 from mods.log_control import VoiceChangaerLogger
 
-from embedder.Embedder import Embedder
-from inferencer.Inferencer import Inferencer
-from inferencer.OnnxRVCInferencer import OnnxRVCInferencer
-from inferencer.OnnxRVCInferencerNono import OnnxRVCInferencerNono
+from RVC.embedder.Embedder import Embedder
+from RVC.inferencer.Inferencer import Inferencer
+from RVC.inferencer.OnnxRVCInferencer import OnnxRVCInferencer
+from RVC.inferencer.OnnxRVCInferencerNono import OnnxRVCInferencerNono
 
-from pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 from utils.Timer import Timer2
 
 logger = VoiceChangaerLogger.get_instance().getLogger()

@@ -1,11 +1,11 @@
 from torch import device
 
 from const import EmbedderType
-from embedder.Embedder import Embedder
-from embedder.FairseqContentvec import FairseqContentvec
-from embedder.FairseqHubert import FairseqHubert
-from embedder.FairseqHubertJp import FairseqHubertJp
-from embedder.OnnxContentvec import OnnxContentvec
+from RVC.embedder.Embedder import Embedder
+from RVC.embedder.FairseqContentvec import FairseqContentvec
+from RVC.embedder.FairseqHubert import FairseqHubert
+from RVC.embedder.FairseqHubertJp import FairseqHubertJp
+from RVC.embedder.OnnxContentvec import OnnxContentvec
 from utils.VoiceChangerParams import VoiceChangerParams
 
 

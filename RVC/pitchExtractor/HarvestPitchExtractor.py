@@ -3,7 +3,7 @@ import numpy as np
 import scipy.signal as signal
 from const import PitchExtractorType
 
-from pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 
 
 class HarvestPitchExtractor(PitchExtractor):

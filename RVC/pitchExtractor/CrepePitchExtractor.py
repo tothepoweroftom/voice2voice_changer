@@ -1,9 +1,9 @@
 import torchcrepe
 import numpy as np
 from const import PitchExtractorType
-from deviceManager.DeviceManager import DeviceManager
+from RVC.deviceManager.DeviceManager import DeviceManager
 
-from pitchExtractor.PitchExtractor import PitchExtractor
+from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 
 
 class CrepePitchExtractor(PitchExtractor):

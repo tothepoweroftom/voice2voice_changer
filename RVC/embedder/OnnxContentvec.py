@@ -1,5 +1,5 @@
 import torch
-from embedder.Embedder import Embedder
+from RVC.embedder.Embedder import Embedder
 
 
 class OnnxContentvec(Embedder):

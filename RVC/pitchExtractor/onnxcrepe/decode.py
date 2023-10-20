@@ -1,7 +1,7 @@
 import librosa
 import numpy as np
 
-from pitchExtractor import onnxcrepe
+from RVC.pitchExtractor import onnxcrepe
 
 ###############################################################################
 # Probability sequence decoding methods
