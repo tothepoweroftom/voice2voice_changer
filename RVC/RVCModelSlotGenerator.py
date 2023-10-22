@@ -5,8 +5,8 @@ import torch
 import onnxruntime
 import json
 
-from data.ModelSlot import RVCModelSlot
-from VoiceChangerParamsManager import VoiceChangerParamsManager
+from model_manager.ModelSlot import RVCModelSlot
+from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 from utils.LoadModelParams import LoadModelParams
 from utils.ModelSlotGenerator import ModelSlotGenerator
 

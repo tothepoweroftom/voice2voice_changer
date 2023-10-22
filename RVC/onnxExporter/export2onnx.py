@@ -24,7 +24,7 @@ from RVC.onnxExporter.SynthesizerTrnMsNSFsidNono_webui_ONNX import (
 from RVC.onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
     SynthesizerTrnMsNSFsid_webui_ONNX,
 )
-from VoiceChangerParamsManager import VoiceChangerParamsManager
+from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 
 
 def export2onnx(gpu: int, modelSlot: RVCModelSlot):
