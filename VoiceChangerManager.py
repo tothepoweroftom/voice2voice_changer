@@ -7,7 +7,7 @@ import numpy as np
 from downloader.SampleDownloader import downloadSample, getSampleInfos
 from mods.log_control import VoiceChangaerLogger
 from Local.ServerDevice import ServerDevice, ServerDeviceCallbacks
-from ModelSlotManager import ModelSlotManager
+from model_manager.ModelSlotManager import ModelSlotManager
 from RVC.RVCModelMerger import RVCModelMerger
 # from voice_changer.VoiceChanger import VoiceChanger
 from const import STORED_SETTING_FILE, UPLOAD_DIR

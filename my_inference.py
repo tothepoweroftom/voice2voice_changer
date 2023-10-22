@@ -11,7 +11,7 @@ from VoiceChangerParamsManager import VoiceChangerParamsManager
 from utils.VoiceChangerModel import AudioInOut
 from utils.VoiceChangerParams import VoiceChangerParams
 from distutils.util import strtobool
-from data.ModelSlot import RVCModelSlot
+from model_manager.ModelSlot import RVCModelSlot
 import platform
 from mods.log_control import VoiceChangaerLogger
 
@@ -71,8 +71,9 @@ def setupArgParser():
     parser.add_argument("--rmvpe_onnx", type=str,
                         default="pretrain/rmvpe.onnx", help="path to rmvpe onnx")
     parser.add_argument("--audio_file", type=str,
-                        default="test_1.wav", help="Path to input audio file")
-
+                        default="test_3.wav", help="Path to input audio file")
+    parser.add_argument("--output_file", type=str,
+                        default="output.wav", help="Path to output audio file")
     return parser
 
 
@@ -98,8 +99,10 @@ voiceChangerParams = VoiceChangerParams(
 # vcparams.setParams(voiceChangerParams)
 
 warmup_audio = "test_1.wav"
-audio_path = "test_3.wav"
+audio_path = args.audio_file
+output_path = args.output_file
 receivedData: AudioInOut = None
+
 
 
 def preProcessAudio(audio_path: str, gain: float = 1.0) -> AudioInOut:
@@ -147,7 +150,6 @@ if __name__ == "__main__":
     output, perf = voiceChangerManager.changeVoice(warmup_data) # perf = [0, mainprocess_time, postprocess_time]
     print("Warm up done")
     output, perf = voiceChangerManager.changeVoice(receivedData) # perf = [0, mainprocess_time, postprocess_time]
-    output_path = "output.wav"
     output_array_float = output.astype(np.float32) / 32768.0
     sf.write(output_path, output_array_float, sr)
     print("Done")

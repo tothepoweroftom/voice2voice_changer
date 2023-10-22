@@ -1,5 +1,5 @@
 from const import UPLOAD_DIR
-from data.ModelSlot import ModelSlots, loadAllSlotInfo, saveSlotInfo
+from model_manager.ModelSlot import ModelSlots, loadAllSlotInfo, saveSlotInfo
 import json
 import os
 import shutil

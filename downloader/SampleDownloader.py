@@ -5,10 +5,10 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Tuple
 
 from const import RVCSampleMode, getSampleJsonAndModelIds
-from data.ModelSample import ModelSamples, generateModelSample
-from data.ModelSlot import DiffusionSVCModelSlot, ModelSlot, RVCModelSlot
+from model_manager.ModelSample import ModelSamples, generateModelSample
+from model_manager.ModelSlot import DiffusionSVCModelSlot, ModelSlot, RVCModelSlot
 from mods.log_control import VoiceChangaerLogger
-from ModelSlotManager import ModelSlotManager
+from model_manager.ModelSlotManager import ModelSlotManager
 from RVC.RVCModelSlotGenerator import RVCModelSlotGenerator
 from downloader.Downloader import download, download_no_tqdm
 
