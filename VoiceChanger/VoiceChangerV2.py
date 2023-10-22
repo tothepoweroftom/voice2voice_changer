@@ -11,7 +11,7 @@
 
 from typing import Any, Union
 
-from const import TMP_DIR
+from utils.const import TMP_DIR
 import torch
 import os
 import numpy as np
@@ -20,12 +20,12 @@ import onnxruntime
 from mods.log_control import VoiceChangaerLogger
 from Beatrice.Beatrice import Beatrice
 
-from IORecorder import IORecorder
+from utils.IORecorder import IORecorder
 
 from utils.Timer import Timer
 from utils.VoiceChangerIF import VoiceChangerIF
 from utils.VoiceChangerModel import AudioInOut, VoiceChangerModel
-from Exceptions import (
+from utils.Exceptions import (
     DeviceCannotSupportHalfPrecisionException,
     DeviceChangingException,
     HalfPrecisionChangingException,

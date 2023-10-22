@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from downloader.Downloader import download
 from mods.log_control import VoiceChangaerLogger
 from utils.VoiceChangerParams import VoiceChangerParams
-from Exceptions import WeightDownladException
+from utils.Exceptions import WeightDownladException
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
 

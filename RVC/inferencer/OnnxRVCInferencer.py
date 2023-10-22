@@ -1,6 +1,6 @@
 import torch
 import onnxruntime
-from const import EnumInferenceTypes
+from utils.const import EnumInferenceTypes
 from RVC.deviceManager.DeviceManager import DeviceManager
 from RVC.inferencer.Inferencer import Inferencer
 import numpy as np

@@ -1,7 +1,7 @@
 import pyworld
 import numpy as np
 import scipy.signal as signal
-from const import PitchExtractorType
+from utils.const import PitchExtractorType
 
 from RVC.pitchExtractor.PitchExtractor import PitchExtractor
 

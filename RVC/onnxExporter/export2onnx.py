@@ -3,8 +3,8 @@ import json
 import torch
 from onnxsim import simplify
 import onnx
-from const import TMP_DIR, EnumInferenceTypes
-from data.ModelSlot import RVCModelSlot
+from utils.const import TMP_DIR, EnumInferenceTypes
+from utils.ModelSlot import RVCModelSlot
 from RVC.deviceManager.DeviceManager import DeviceManager
 from RVC.onnxExporter.SynthesizerTrnMs256NSFsid_ONNX import (
     SynthesizerTrnMs256NSFsid_ONNX,

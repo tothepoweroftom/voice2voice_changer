@@ -1,7 +1,7 @@
 import librosa
 import soundfile as sf
 import numpy as np
-from Exceptions import WeightDownladException
+from utils.Exceptions import WeightDownladException
 from VoiceChanger.VoiceChangerManager import VoiceChangerManager
 from downloader.SampleDownloader import downloadInitialSamples
 from downloader.WeightDownloader import downloadWeight
@@ -11,7 +11,7 @@ from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 from utils.VoiceChangerModel import AudioInOut
 from utils.VoiceChangerParams import VoiceChangerParams
 from distutils.util import strtobool
-from model_manager.ModelSlot import RVCModelSlot
+from utils.ModelSlot import RVCModelSlot
 import platform
 from mods.log_control import VoiceChangaerLogger
 

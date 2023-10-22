@@ -2,7 +2,7 @@ from typing import Any, Protocol
 import torch
 import onnxruntime
 
-from const import EnumInferenceTypes
+from utils.const import EnumInferenceTypes
 
 
 class Inferencer(Protocol):

@@ -2,7 +2,7 @@ from typing import Dict, Any
 import os
 from collections import OrderedDict
 import torch
-from model_manager.ModelSlotManager import ModelSlotManager
+from utils.ModelSlotManager import ModelSlotManager
 
 from utils.ModelMerger import ModelMergerRequest
 from utils.VoiceChangerParams import VoiceChangerParams

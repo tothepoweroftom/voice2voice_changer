@@ -1,8 +1,8 @@
 import os
 import traceback
 import faiss
-from Exceptions import PipelineCreateException
-from data.ModelSlot import RVCModelSlot
+from utils.Exceptions import PipelineCreateException
+from utils.ModelSlot import RVCModelSlot
 
 from RVC.deviceManager.DeviceManager import DeviceManager
 from RVC.embedder.EmbedderManager import EmbedderManager

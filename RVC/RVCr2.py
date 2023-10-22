@@ -4,7 +4,7 @@ VoiceChangerV2
 from dataclasses import asdict
 import numpy as np
 import torch
-from data.ModelSlot import RVCModelSlot
+from utils.ModelSlot import RVCModelSlot
 from mods.log_control import VoiceChangaerLogger
 
 from RVC.RVCSettings import RVCSettings
@@ -17,7 +17,7 @@ from RVC.pipeline.PipelineGenerator import createPipeline
 from RVC.deviceManager.DeviceManager import DeviceManager
 from RVC.pipeline.Pipeline import Pipeline
 
-from Exceptions import DeviceCannotSupportHalfPrecisionException, PipelineCreateException, PipelineNotInitializedException
+from utils.Exceptions import DeviceCannotSupportHalfPrecisionException, PipelineCreateException, PipelineNotInitializedException
 import resampy
 from typing import cast
 
