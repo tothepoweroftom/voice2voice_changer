@@ -22,7 +22,7 @@ class PitchExtractorManager(Protocol):
     def getPitchExtractor(
         cls, pitchExtractorType: PitchExtractorType, gpu: int
     ) -> PitchExtractor:
-        cls.currentPitchExtractor = cls.loadPitchExtractor(pitchExtractorType,  gpu)
+        cls.currentPitchExtractor = cls.loadPitchExtractor(pitchExtractorType, gpu)
         return cls.currentPitchExtractor
 
     @classmethod
