@@ -24,7 +24,7 @@ LoadModelParamFileKind: TypeAlias = Literal[
 
 
 @dataclass
-class LoadModelParamFile:
+class LoadModelParamFile:  # unused
     name: str
     kind: LoadModelParamFileKind
     dir: str

@@ -5,25 +5,31 @@ import sys
 import threading
 from dataclasses import asdict, dataclass, field
 
-# import threading
-from typing import Any, Callable
-
 import numpy as np
 import torch
 
 from downloader.SampleDownloader import downloadSample, getSampleInfos
 from Local.ServerDevice import ServerDevice, ServerDeviceCallbacks
 from mods.log_control import VoiceChangaerLogger
-from RVC.RVCModelMerger import RVCModelMerger
 
 # from voice_changer.VoiceChanger import VoiceChanger
 from utils.const import STORED_SETTING_FILE, UPLOAD_DIR
-from utils.LoadModelParams import LoadModelParamFile, LoadModelParams
-from utils.ModelMerger import MergeElement, ModelMergerRequest
+
+# from utils.LoadModelParams import LoadModelParamFile
+from utils.LoadModelParams import LoadModelParams
+
+# from utils.ModelMerger import MergeElement, ModelMergerRequest
 from utils.ModelSlotManager import ModelSlotManager
 from utils.VoiceChangerModel import AudioInOut
 from utils.VoiceChangerParams import VoiceChangerParams
 from VoiceChanger.VoiceChangerV2 import VoiceChangerV2
+
+# import threading
+# from typing import Any, Callable
+
+
+# from RVC.RVCModelMerger import RVCModelMerger
+
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
 
@@ -266,12 +272,12 @@ class VoiceChangerManager(ServerDeviceCallbacks):
 
         return data
 
-    def get_performance(self):
-        if hasattr(self, "voiceChanger"):
-            info = self.voiceChanger.get_performance()
-            return info
-        else:
-            return {"status": "ERROR", "msg": "no model loaded"}
+    # def get_performance(self):  # unused
+    #     if hasattr(self, "voiceChanger"):
+    #         info = self.voiceChanger.get_performance()
+    #         return info
+    #     else:
+    #         return {"status": "ERROR", "msg": "no model loaded"}
 
     def generateVoiceChanger(self, val: int):
         slotInfo = self.modelSlotManager.get_slot_info(val)
@@ -384,49 +390,49 @@ class VoiceChangerManager(ServerDeviceCallbacks):
             )
             return np.zeros(1).astype(np.int16), []
 
-    def export2onnx(self):
-        return self.voiceChanger.export2onnx()
+    # def export2onnx(self):  # unused
+    #     return self.voiceChanger.export2onnx()
 
-    def merge_models(self, request: str):
-        # self.voiceChanger.merge_models(request)
-        req = json.loads(request)
-        req = ModelMergerRequest(**req)
-        req.files = [MergeElement(**f) for f in req.files]
-        slot = len(self.modelSlotManager.getAllSlotInfo()) - 1
-        if req.voiceChangerType == "RVC":
-            merged = RVCModelMerger.merge_models(self.params, req, slot)
-            loadParam = LoadModelParams(
-                voiceChangerType="RVC",
-                slot=slot,
-                isSampleMode=False,
-                sampleId="",
-                files=[
-                    LoadModelParamFile(
-                        name=os.path.basename(merged), kind="rvcModel", dir=""
-                    )
-                ],
-                params={},
-            )
-            self.loadModel(loadParam)
-        return self.get_info()
+    # def merge_models(self, request: str):  # unused
+    #     # self.voiceChanger.merge_models(request)
+    #     req = json.loads(request)
+    #     req = ModelMergerRequest(**req)
+    #     req.files = [MergeElement(**f) for f in req.files]
+    #     slot = len(self.modelSlotManager.getAllSlotInfo()) - 1
+    #     if req.voiceChangerType == "RVC":
+    #         merged = RVCModelMerger.merge_models(self.params, req, slot)
+    #         loadParam = LoadModelParams(
+    #             voiceChangerType="RVC",
+    #             slot=slot,
+    #             isSampleMode=False,
+    #             sampleId="",
+    #             files=[
+    #                 LoadModelParamFile(
+    #                     name=os.path.basename(merged), kind="rvcModel", dir=""
+    #                 )
+    #             ],
+    #             params={},
+    #         )
+    #         self.loadModel(loadParam)
+    #     return self.get_info()
 
-    def setEmitTo(self, emitTo: Callable[[Any], None]):
-        self.emitToFunc = emitTo
+    # def setEmitTo(self, emitTo: Callable[[Any], None]):  # unused
+    #     self.emitToFunc = emitTo
 
-    def update_model_default(self):
-        # self.voiceChanger.update_model_default()
-        current_settings = self.voiceChangerModel.get_model_current()
-        for current_setting in current_settings:
-            current_setting["slot"] = self.settings.modelSlotIndex
-            self.modelSlotManager.update_model_info(json.dumps(current_setting))
-        return self.get_info()
+    # def update_model_default(self):  # unused
+    #     # self.voiceChanger.update_model_default()
+    #     current_settings = self.voiceChangerModel.get_model_current()
+    #     for current_setting in current_settings:
+    #         current_setting["slot"] = self.settings.modelSlotIndex
+    #         self.modelSlotManager.update_model_info(json.dumps(current_setting))
+    #     return self.get_info()
 
-    def update_model_info(self, newData: str):
-        # self.voiceChanger.update_model_info(newData)
-        self.modelSlotManager.update_model_info(newData)
-        return self.get_info()
+    # def update_model_info(self, newData: str):  # unused
+    #     # self.voiceChanger.update_model_info(newData)
+    #     self.modelSlotManager.update_model_info(newData)
+    #     return self.get_info()
 
-    def upload_model_assets(self, params: str):
-        # self.voiceChanger.upload_model_assets(params)
-        self.modelSlotManager.store_model_assets(params)
-        return self.get_info()
+    # def upload_model_assets(self, params: str):  # unused
+    #     # self.voiceChanger.upload_model_assets(params)
+    #     self.modelSlotManager.store_model_assets(params)
+    #     return self.get_info()
