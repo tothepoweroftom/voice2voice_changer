@@ -1,12 +1,23 @@
 import math
+
 import torch
 from torch import nn
 
-from RVC.inferencer.rvc_models.infer_pack.models import GeneratorNSF, PosteriorEncoder, ResidualCouplingBlock, Generator
+from RVC.inferencer.rvc_models.infer_pack.models import (
+    Generator,
+    GeneratorNSF,
+    PosteriorEncoder,
+    ResidualCouplingBlock,
+)
+
+from .rvc_models.infer_pack.attentions import Encoder
 
 # from infer_pack import commons, attentions
-from .rvc_models.infer_pack.commons import sequence_mask, rand_slice_segments, slice_segments2
-from .rvc_models.infer_pack.attentions import Encoder
+from .rvc_models.infer_pack.commons import (
+    rand_slice_segments,
+    sequence_mask,
+    slice_segments2,
+)
 
 
 class TextEncoder(nn.Module):
@@ -35,7 +46,14 @@ class TextEncoder(nn.Module):
         self.lrelu = nn.LeakyReLU(0.1, inplace=True)
         if f0 is True:
             self.emb_pitch = nn.Embedding(256, hidden_channels)  # pitch 256
-        self.encoder = Encoder(hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout)
+        self.encoder = Encoder(
+            hidden_channels,
+            filter_channels,
+            n_heads,
+            n_layers,
+            kernel_size,
+            p_dropout,
+        )
         self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
 
     def forward(self, phone, pitch, lengths):
@@ -46,7 +64,9 @@ class TextEncoder(nn.Module):
         x = x * math.sqrt(self.hidden_channels)  # [b, t, h]
         x = self.lrelu(x)
         x = torch.transpose(x, 1, -1)  # [b, h, t]
-        x_mask = torch.unsqueeze(sequence_mask(lengths, x.size(2)), 1).to(x.dtype)
+        x_mask = torch.unsqueeze(sequence_mask(lengths, x.size(2)), 1).to(
+            x.dtype
+        )
         x = self.encoder(x * x_mask, x_mask)
         stats = self.proj(x) * x_mask
 
@@ -55,7 +75,29 @@ class TextEncoder(nn.Module):
 
 
 class SynthesizerTrnMsNSFsid(nn.Module):
-    def __init__(self, spec_channels, segment_size, inter_channels, hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout, resblock, resblock_kernel_sizes, resblock_dilation_sizes, upsample_rates, upsample_initial_channel, upsample_kernel_sizes, spk_embed_dim, gin_channels, emb_channels, sr, **kwargs):
+    def __init__(
+        self,
+        spec_channels,
+        segment_size,
+        inter_channels,
+        hidden_channels,
+        filter_channels,
+        n_heads,
+        n_layers,
+        kernel_size,
+        p_dropout,
+        resblock,
+        resblock_kernel_sizes,
+        resblock_dilation_sizes,
+        upsample_rates,
+        upsample_initial_channel,
+        upsample_kernel_sizes,
+        spk_embed_dim,
+        gin_channels,
+        emb_channels,
+        sr,
+        **kwargs
+    ):
         super().__init__()
         self.spec_channels = spec_channels
         self.inter_channels = inter_channels
@@ -107,39 +149,88 @@ class SynthesizerTrnMsNSFsid(nn.Module):
             16,
             gin_channels=gin_channels,
         )
-        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 3, gin_channels=gin_channels)
+        self.flow = ResidualCouplingBlock(
+            inter_channels, hidden_channels, 5, 1, 3, gin_channels=gin_channels
+        )
         self.emb_g = nn.Embedding(self.spk_embed_dim, gin_channels)
-        print("gin_channels:", gin_channels, "self.spk_embed_dim:", self.spk_embed_dim)
+        print(
+            "gin_channels:",
+            gin_channels,
+            "self.spk_embed_dim:",
+            self.spk_embed_dim,
+        )
 
     def remove_weight_norm(self):
         self.dec.remove_weight_norm()
         self.flow.remove_weight_norm()
         self.enc_q.remove_weight_norm()
 
-    def forward(self, phone, phone_lengths, pitch, pitchf, y, y_lengths, ds):  # 这里ds是id，[bs,1]
+    def forward(
+        self, phone, phone_lengths, pitch, pitchf, y, y_lengths, ds
+    ):  # 这里ds是id，[bs,1]
         # print(1,pitch.shape)#[bs,t]
         g = self.emb_g(ds).unsqueeze(-1)  # [b, 256, 1]##1是t，广播的
         m_p, logs_p, x_mask = self.enc_p(phone, pitch, phone_lengths)
         z, m_q, logs_q, y_mask = self.enc_q(y, y_lengths, g=g)
         z_p = self.flow(z, y_mask, g=g)
-        z_slice, ids_slice = rand_slice_segments(z, y_lengths, self.segment_size)
+        z_slice, ids_slice = rand_slice_segments(
+            z, y_lengths, self.segment_size
+        )
         # print(-1,pitchf.shape,ids_slice,self.segment_size,self.hop_length,self.segment_size//self.hop_length)
         pitchf = slice_segments2(pitchf, ids_slice, self.segment_size)
         # print(-2,pitchf.shape,z_slice.shape)
         o = self.dec(z_slice, pitchf, g=g)
         return o, ids_slice, x_mask, y_mask, (z, z_p, m_p, logs_p, m_q, logs_q)
 
-    def infer(self, phone, phone_lengths, pitch, nsff0, sid, max_len=None, convert_length=None):
+    def infer(
+        self,
+        phone,
+        phone_lengths,
+        pitch,
+        nsff0,
+        sid,
+        max_len=None,
+        convert_length=None,
+    ):
         g = self.emb_g(sid).unsqueeze(-1)
         m_p, logs_p, x_mask = self.enc_p(phone, pitch, phone_lengths)
-        z_p = (m_p + torch.exp(logs_p) * torch.randn_like(m_p) * 0.66666) * x_mask
+        z_p = (
+            m_p + torch.exp(logs_p) * torch.randn_like(m_p) * 0.66666
+        ) * x_mask
         z = self.flow(z_p, x_mask, g=g, reverse=True)
-        o = self.dec.infer_realtime((z * x_mask)[:, :, :max_len], nsff0, g=g, convert_length=convert_length)
+        o = self.dec.infer_realtime(
+            (z * x_mask)[:, :, :max_len],
+            nsff0,
+            g=g,
+            convert_length=convert_length,
+        )
         return o, x_mask, (z, z_p, m_p, logs_p)
 
 
 class SynthesizerTrnMsNSFsidNono(nn.Module):
-    def __init__(self, spec_channels, segment_size, inter_channels, hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout, resblock, resblock_kernel_sizes, resblock_dilation_sizes, upsample_rates, upsample_initial_channel, upsample_kernel_sizes, spk_embed_dim, gin_channels, emb_channels, sr=None, **kwargs):
+    def __init__(
+        self,
+        spec_channels,
+        segment_size,
+        inter_channels,
+        hidden_channels,
+        filter_channels,
+        n_heads,
+        n_layers,
+        kernel_size,
+        p_dropout,
+        resblock,
+        resblock_kernel_sizes,
+        resblock_dilation_sizes,
+        upsample_rates,
+        upsample_initial_channel,
+        upsample_kernel_sizes,
+        spk_embed_dim,
+        gin_channels,
+        emb_channels,
+        sr=None,
+        **kwargs
+    ):
         super().__init__()
         self.spec_channels = spec_channels
         self.inter_channels = inter_channels
@@ -190,9 +281,16 @@ class SynthesizerTrnMsNSFsidNono(nn.Module):
             16,
             gin_channels=gin_channels,
         )
-        self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 3, gin_channels=gin_channels)
+        self.flow = ResidualCouplingBlock(
+            inter_channels, hidden_channels, 5, 1, 3, gin_channels=gin_channels
+        )
         self.emb_g = nn.Embedding(self.spk_embed_dim, gin_channels)
-        print("gin_channels:", gin_channels, "self.spk_embed_dim:", self.spk_embed_dim)
+        print(
+            "gin_channels:",
+            gin_channels,
+            "self.spk_embed_dim:",
+            self.spk_embed_dim,
+        )
 
     def remove_weight_norm(self):
         self.dec.remove_weight_norm()
@@ -204,14 +302,22 @@ class SynthesizerTrnMsNSFsidNono(nn.Module):
         m_p, logs_p, x_mask = self.enc_p(phone, None, phone_lengths)
         z, m_q, logs_q, y_mask = self.enc_q(y, y_lengths, g=g)
         z_p = self.flow(z, y_mask, g=g)
-        z_slice, ids_slice = rand_slice_segments(z, y_lengths, self.segment_size)
+        z_slice, ids_slice = rand_slice_segments(
+            z, y_lengths, self.segment_size
+        )
         o = self.dec(z_slice, g=g)
         return o, ids_slice, x_mask, y_mask, (z, z_p, m_p, logs_p, m_q, logs_q)
 
-    def infer(self, phone, phone_lengths, sid, max_len=None, convert_length=None):
+    def infer(
+        self, phone, phone_lengths, sid, max_len=None, convert_length=None
+    ):
         g = self.emb_g(sid).unsqueeze(-1)
         m_p, logs_p, x_mask = self.enc_p(phone, None, phone_lengths)
-        z_p = (m_p + torch.exp(logs_p) * torch.randn_like(m_p) * 0.66666) * x_mask
+        z_p = (
+            m_p + torch.exp(logs_p) * torch.randn_like(m_p) * 0.66666
+        ) * x_mask
         z = self.flow(z_p, x_mask, g=g, reverse=True)
-        o = self.dec.infer_realtime((z * x_mask)[:, :, :max_len], g=g, convert_length=convert_length)
+        o = self.dec.infer_realtime(
+            (z * x_mask)[:, :, :max_len], g=g, convert_length=convert_length
+        )
         return o, x_mask, (z, z_p, m_p, logs_p)

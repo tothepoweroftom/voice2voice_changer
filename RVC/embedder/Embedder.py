@@ -3,7 +3,7 @@ from typing import Any
 import torch
 from torch import device
 
-from const import EmbedderType
+from utils.const import EmbedderType
 from RVC.embedder.EmbedderProtocol import EmbedderProtocol
 
 

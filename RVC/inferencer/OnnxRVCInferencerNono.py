@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from const import EnumInferenceTypes
+from utils.const import EnumInferenceTypes
 
 from RVC.inferencer.OnnxRVCInferencer import OnnxRVCInferencer
 

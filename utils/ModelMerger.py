@@ -1,5 +1,5 @@
 from typing import Protocol
-from const import VoiceChangerType
+from utils.const import VoiceChangerType
 from dataclasses import dataclass
 
 

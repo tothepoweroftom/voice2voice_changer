@@ -1,7 +1,7 @@
 import os
 
 import torch
-from const import UPLOAD_DIR
+from utils.const import UPLOAD_DIR
 from RVC.modelMerger.MergeModel import merge_model
 from utils.ModelMerger import ModelMerger, ModelMergerRequest
 from utils.VoiceChangerParams import VoiceChangerParams

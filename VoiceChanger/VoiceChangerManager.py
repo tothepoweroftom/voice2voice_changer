@@ -1,27 +1,34 @@
 import json
 import os
-import sys
 import shutil
+import sys
 import threading
+from dataclasses import asdict, dataclass, field
+
 import numpy as np
-from downloader.SampleDownloader import downloadSample, getSampleInfos
-from mods.log_control import VoiceChangaerLogger
-from Local.ServerDevice import ServerDevice, ServerDeviceCallbacks
-from ModelSlotManager import ModelSlotManager
-from RVC.RVCModelMerger import RVCModelMerger
-# from voice_changer.VoiceChanger import VoiceChanger
-from const import STORED_SETTING_FILE, UPLOAD_DIR
-from VoiceChangerV2 import VoiceChangerV2
-from utils.LoadModelParams import LoadModelParamFile, LoadModelParams
-from utils.ModelMerger import MergeElement, ModelMergerRequest
-from utils.VoiceChangerModel import AudioInOut
-from utils.VoiceChangerParams import VoiceChangerParams
-from dataclasses import dataclass, asdict, field
 import torch
 
+from downloader.SampleDownloader import downloadSample, getSampleInfos
+from Local.ServerDevice import ServerDevice, ServerDeviceCallbacks
+from mods.log_control import VoiceChangaerLogger
+
+# from voice_changer.VoiceChanger import VoiceChanger
+from utils.const import STORED_SETTING_FILE, UPLOAD_DIR
+
+# from utils.LoadModelParams import LoadModelParamFile
+from utils.LoadModelParams import LoadModelParams
+
+# from utils.ModelMerger import MergeElement, ModelMergerRequest
+from utils.ModelSlotManager import ModelSlotManager
+from utils.VoiceChangerModel import AudioInOut
+from utils.VoiceChangerParams import VoiceChangerParams
+from VoiceChanger.VoiceChangerV2 import VoiceChangerV2
+
 # import threading
-from typing import Callable
-from typing import Any
+# from typing import Any, Callable
+
+
+# from RVC.RVCModelMerger import RVCModelMerger
 
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
@@ -39,12 +46,12 @@ class VoiceChangerManagerSettings:
     modelSlotIndex: int = -1
     passThrough: bool = False  # 0: off, 1: on
     # Enumerate only mutable items
-    boolData: list[str] = field(default_factory=lambda: [
-        "passThrough"
-    ])
-    intData: list[str] = field(default_factory=lambda: [
-        "modelSlotIndex",
-    ])
+    boolData: list[str] = field(default_factory=lambda: ["passThrough"])
+    intData: list[str] = field(
+        default_factory=lambda: [
+            "modelSlotIndex",
+        ]
+    )
 
 
 class VoiceChangerManager(ServerDeviceCallbacks):
@@ -75,10 +82,13 @@ class VoiceChangerManager(ServerDeviceCallbacks):
         logger.info("[Voice Changer] VoiceChangerManager initializing...")
         self.params = params
         self.voiceChanger: VoiceChangerV2 = None
-        self.settings: VoiceChangerManagerSettings = VoiceChangerManagerSettings()
+        self.settings: VoiceChangerManagerSettings = (
+            VoiceChangerManagerSettings()
+        )
 
         self.modelSlotManager = ModelSlotManager.get_instance(
-            self.params.model_dir)
+            self.params.model_dir
+        )
         # Collect static information
         self.gpus: list[GPUInfo] = self._get_gpuInfos()
 
@@ -91,25 +101,39 @@ class VoiceChangerManager(ServerDeviceCallbacks):
         self.stored_setting: dict[str, str | int | float] = {}
         if os.path.exists(STORED_SETTING_FILE):
             self.stored_setting = json.load(
-                open(STORED_SETTING_FILE, "r", encoding="utf-8"))
+                open(STORED_SETTING_FILE, "r", encoding="utf-8")
+            )
         if "modelSlotIndex" in self.stored_setting:
             self.update_settings(
-                "modelSlotIndex", self.stored_setting["modelSlotIndex"])
+                "modelSlotIndex", self.stored_setting["modelSlotIndex"]
+            )
         if "gpu" not in self.stored_setting:
             self.update_settings("gpu", 0)
         # for key, val in self.stored_setting.items():
         #     self.update_settings(key, val)
-        logger.info(
-            "[Voice Changer] VoiceChangerManager initializing... done.")
+        logger.info("[Voice Changer] VoiceChangerManager initializing... done.")
+        print("[Voice Changer] VoiceChangerManager initializing... done.")
 
     def store_setting(self, key: str, val: str | int | float):
-        saveItemForServerDevice = ["enableServerAudio", "serverAudioSampleRate", "serverInputDeviceId", "serverOutputDeviceId",
-                                   "serverMonitorDeviceId", "serverReadChunkSize", "serverInputAudioGain", "serverOutputAudioGain"]
-        saveItemForVoiceChanger = ["crossFadeOffsetRate",
-                                   "crossFadeEndRate", "crossFadeOverlapSize"]
+        saveItemForServerDevice = [
+            "enableServerAudio",
+            "serverAudioSampleRate",
+            "serverInputDeviceId",
+            "serverOutputDeviceId",
+            "serverMonitorDeviceId",
+            "serverReadChunkSize",
+            "serverInputAudioGain",
+            "serverOutputAudioGain",
+        ]
+        saveItemForVoiceChanger = [
+            "crossFadeOffsetRate",
+            "crossFadeEndRate",
+            "crossFadeOverlapSize",
+        ]
         saveItemForVoiceChangerManager = ["modelSlotIndex"]
         saveItemForRVC = ["extraConvertSize", "gpu", "silentThreshold"]
-        # Implement so that if the set f0Detector has a value that does not exist in VC, it will fall to the default value.
+        # Implement so that if the set f0Detector has a value that
+        # does not exist in VC, it will fall to the default value.
         saveItemForAllVoiceChanger = ["f0Detector"]
 
         saveItem = []
@@ -142,8 +166,13 @@ class VoiceChangerManager(ServerDeviceCallbacks):
         if params.isSampleMode:
             # sample download
             logger.info(f"[Voice Changer] sample download...., {params}")
-            downloadSample(self.params.sample_mode, params.sampleId,
-                           self.params.model_dir, params.slot, params.params)
+            downloadSample(
+                self.params.sample_mode,
+                params.sampleId,
+                self.params.model_dir,
+                params.slot,
+                params.params,
+            )
             self.modelSlotManager.getAllSlotInfo(reload=True)
             info = {"status": "OK"}
             return info
@@ -178,36 +207,50 @@ class VoiceChangerManager(ServerDeviceCallbacks):
 
                 slotInfo = RVCModelSlotGenerator.loadModel(params)
                 self.modelSlotManager.save_model_slot(params.slot, slotInfo)
+
             # elif params.voiceChangerType == "MMVCv13":
-            #     from voice_changer.MMVCv13.MMVCv13ModelSlotGenerator import MMVCv13ModelSlotGenerator
+            #     from voice_changer.MMVCv13.MMVCv13ModelSlotGenerator import (
+            #         MMVCv13ModelSlotGenerator,
+            #     )
 
             #     slotInfo = MMVCv13ModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
             # elif params.voiceChangerType == "MMVCv15":
-            #     from voice_changer.MMVCv15.MMVCv15ModelSlotGenerator import MMVCv15ModelSlotGenerator
+            #     from voice_changer.MMVCv15.MMVCv15ModelSlotGenerator import (
+            #         MMVCv15ModelSlotGenerator,
+            #     )
 
             #     slotInfo = MMVCv15ModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
             # elif params.voiceChangerType == "so-vits-svc-40":
-            #     from voice_changer.SoVitsSvc40.SoVitsSvc40ModelSlotGenerator import SoVitsSvc40ModelSlotGenerator
+            #     from voice_changer.SoVitsSvc40.SoVitsSvc40ModelSlotGenerator import (
+            #         SoVitsSvc40ModelSlotGenerator,
+            #     )
 
             #     slotInfo = SoVitsSvc40ModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
             # elif params.voiceChangerType == "DDSP-SVC":
-            #     from voice_changer.DDSP_SVC.DDSP_SVCModelSlotGenerator import DDSP_SVCModelSlotGenerator
+            #     from voice_changer.DDSP_SVC.DDSP_SVCModelSlotGenerator import (
+            #         DDSP_SVCModelSlotGenerator,
+            #     )
 
             #     slotInfo = DDSP_SVCModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
             # elif params.voiceChangerType == "Diffusion-SVC":
-            #     from voice_changer.DiffusionSVC.DiffusionSVCModelSlotGenerator import DiffusionSVCModelSlotGenerator
+            #     from voice_changer.DiffusionSVC.DiffusionSVCModelSlotGenerator import (
+            #         DiffusionSVCModelSlotGenerator,
+            #     )
 
             #     slotInfo = DiffusionSVCModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
             # elif params.voiceChangerType == "Beatrice":
-            #     from voice_changer.Beatrice.BeatriceModelSlotGenerator import BeatriceModelSlotGenerator
+            #     from voice_changer.Beatrice.BeatriceModelSlotGenerator import (
+            #         BeatriceModelSlotGenerator,
+            #     )
 
             #     slotInfo = BeatriceModelSlotGenerator.loadModel(params)
             #     self.modelSlotManager.save_model_slot(params.slot, slotInfo)
+
             logger.info(f"params, {params}")
 
     def get_info(self):
@@ -229,12 +272,12 @@ class VoiceChangerManager(ServerDeviceCallbacks):
 
         return data
 
-    def get_performance(self):
-        if hasattr(self, "voiceChanger"):
-            info = self.voiceChanger.get_performance()
-            return info
-        else:
-            return {"status": "ERROR", "msg": "no model loaded"}
+    # def get_performance(self):  # unused
+    #     if hasattr(self, "voiceChanger"):
+    #         info = self.voiceChanger.get_performance()
+    #         return info
+    #     else:
+    #         return {"status": "ERROR", "msg": "no model loaded"}
 
     def generateVoiceChanger(self, val: int):
         slotInfo = self.modelSlotManager.get_slot_info(val)
@@ -299,7 +342,8 @@ class VoiceChangerManager(ServerDeviceCallbacks):
         #     self.voiceChanger.setModel(self.voiceChangerModel)
         else:
             logger.info(
-                f"[Voice Changer] unknown voice changer model: {slotInfo.voiceChangerType}")
+                f"[Voice Changer] unknown voice changer model: {slotInfo.voiceChangerType}"
+            )
             if hasattr(self, "voiceChangerModel"):
                 del self.voiceChangerModel
             return
@@ -318,7 +362,8 @@ class VoiceChangerManager(ServerDeviceCallbacks):
             if key == "modelSlotIndex":
                 newVal = newVal % 1000
                 logger.info(
-                    f"[Voice Changer] model slot is changed {self.settings.modelSlotIndex} -> {newVal}")
+                    f"[Voice Changer] model slot is changed {self.settings.modelSlotIndex} -> {newVal}"
+                )
                 self.generateVoiceChanger(newVal)
                 # Reflecting the cache settings
                 for k, v in self.stored_setting.items():
@@ -341,43 +386,53 @@ class VoiceChangerManager(ServerDeviceCallbacks):
             return self.voiceChanger.on_request(receivedData)
         else:
             logger.info(
-                "Voice Change is not loaded. Did you load a correct model?")
+                "Voice Change is not loaded. Did you load a correct model?"
+            )
             return np.zeros(1).astype(np.int16), []
 
-    def export2onnx(self):
-        return self.voiceChanger.export2onnx()
+    # def export2onnx(self):  # unused
+    #     return self.voiceChanger.export2onnx()
 
-    def merge_models(self, request: str):
-        # self.voiceChanger.merge_models(request)
-        req = json.loads(request)
-        req = ModelMergerRequest(**req)
-        req.files = [MergeElement(**f) for f in req.files]
-        slot = len(self.modelSlotManager.getAllSlotInfo()) - 1
-        if req.voiceChangerType == "RVC":
-            merged = RVCModelMerger.merge_models(self.params, req, slot)
-            loadParam = LoadModelParams(voiceChangerType="RVC", slot=slot, isSampleMode=False, sampleId="", files=[
-                                        LoadModelParamFile(name=os.path.basename(merged), kind="rvcModel", dir="")], params={})
-            self.loadModel(loadParam)
-        return self.get_info()
+    # def merge_models(self, request: str):  # unused
+    #     # self.voiceChanger.merge_models(request)
+    #     req = json.loads(request)
+    #     req = ModelMergerRequest(**req)
+    #     req.files = [MergeElement(**f) for f in req.files]
+    #     slot = len(self.modelSlotManager.getAllSlotInfo()) - 1
+    #     if req.voiceChangerType == "RVC":
+    #         merged = RVCModelMerger.merge_models(self.params, req, slot)
+    #         loadParam = LoadModelParams(
+    #             voiceChangerType="RVC",
+    #             slot=slot,
+    #             isSampleMode=False,
+    #             sampleId="",
+    #             files=[
+    #                 LoadModelParamFile(
+    #                     name=os.path.basename(merged), kind="rvcModel", dir=""
+    #                 )
+    #             ],
+    #             params={},
+    #         )
+    #         self.loadModel(loadParam)
+    #     return self.get_info()
 
-    def setEmitTo(self, emitTo: Callable[[Any], None]):
-        self.emitToFunc = emitTo
+    # def setEmitTo(self, emitTo: Callable[[Any], None]):  # unused
+    #     self.emitToFunc = emitTo
 
-    def update_model_default(self):
-        # self.voiceChanger.update_model_default()
-        current_settings = self.voiceChangerModel.get_model_current()
-        for current_setting in current_settings:
-            current_setting["slot"] = self.settings.modelSlotIndex
-            self.modelSlotManager.update_model_info(
-                json.dumps(current_setting))
-        return self.get_info()
+    # def update_model_default(self):  # unused
+    #     # self.voiceChanger.update_model_default()
+    #     current_settings = self.voiceChangerModel.get_model_current()
+    #     for current_setting in current_settings:
+    #         current_setting["slot"] = self.settings.modelSlotIndex
+    #         self.modelSlotManager.update_model_info(json.dumps(current_setting))
+    #     return self.get_info()
 
-    def update_model_info(self, newData: str):
-        # self.voiceChanger.update_model_info(newData)
-        self.modelSlotManager.update_model_info(newData)
-        return self.get_info()
+    # def update_model_info(self, newData: str):  # unused
+    #     # self.voiceChanger.update_model_info(newData)
+    #     self.modelSlotManager.update_model_info(newData)
+    #     return self.get_info()
 
-    def upload_model_assets(self, params: str):
-        # self.voiceChanger.upload_model_assets(params)
-        self.modelSlotManager.store_model_assets(params)
-        return self.get_info()
+    # def upload_model_assets(self, params: str):  # unused
+    #     # self.voiceChanger.upload_model_assets(params)
+    #     self.modelSlotManager.store_model_assets(params)
+    #     return self.get_info()

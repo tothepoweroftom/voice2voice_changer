@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from const import VoiceChangerType
+from utils.const import VoiceChangerType
 from typing import Literal, TypeAlias
 
 LoadModelParamFileKind: TypeAlias = Literal[
@@ -24,7 +24,7 @@ LoadModelParamFileKind: TypeAlias = Literal[
 
 
 @dataclass
-class LoadModelParamFile:
+class LoadModelParamFile:  # unused
     name: str
     kind: LoadModelParamFileKind
     dir: str

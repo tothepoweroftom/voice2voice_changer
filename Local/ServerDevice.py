@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict
 
 import numpy as np
-from const import SERVER_DEVICE_SAMPLE_RATES
+from utils.const import SERVER_DEVICE_SAMPLE_RATES
 
 from queue import Queue
 from mods.log_control import VoiceChangaerLogger

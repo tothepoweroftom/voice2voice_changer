@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from const import ServerAudioDeviceType
+from utils.const import ServerAudioDeviceType
 from mods.log_control import VoiceChangaerLogger
-# from const import SERVER_DEVICE_SAMPLE_RATES
+# from utils.const import SERVER_DEVICE_SAMPLE_RATES
 
 logger = VoiceChangaerLogger.get_instance().getLogger()
 

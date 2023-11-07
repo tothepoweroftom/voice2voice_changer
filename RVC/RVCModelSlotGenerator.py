@@ -1,12 +1,12 @@
 import os
-from const import EnumInferenceTypes
+from utils.const import EnumInferenceTypes
 from dataclasses import asdict
 import torch
 import onnxruntime
 import json
 
-from data.ModelSlot import RVCModelSlot
-from VoiceChangerParamsManager import VoiceChangerParamsManager
+from utils.ModelSlot import RVCModelSlot
+from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 from utils.LoadModelParams import LoadModelParams
 from utils.ModelSlotGenerator import ModelSlotGenerator
 

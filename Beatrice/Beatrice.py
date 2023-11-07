@@ -1,4 +1,4 @@
-from data.ModelSlot import BeatriceModelSlot
+from utils.ModelSlot import BeatriceModelSlot
 from mods.log_control import VoiceChangaerLogger
 
 from utils.VoiceChangerModel import AudioInOut, VoiceChangerModel

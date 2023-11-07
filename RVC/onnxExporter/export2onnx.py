@@ -3,8 +3,8 @@ import json
 import torch
 from onnxsim import simplify
 import onnx
-from const import TMP_DIR, EnumInferenceTypes
-from data.ModelSlot import RVCModelSlot
+from utils.const import TMP_DIR, EnumInferenceTypes
+from utils.ModelSlot import RVCModelSlot
 from RVC.deviceManager.DeviceManager import DeviceManager
 from RVC.onnxExporter.SynthesizerTrnMs256NSFsid_ONNX import (
     SynthesizerTrnMs256NSFsid_ONNX,
@@ -24,7 +24,7 @@ from RVC.onnxExporter.SynthesizerTrnMsNSFsidNono_webui_ONNX import (
 from RVC.onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
     SynthesizerTrnMsNSFsid_webui_ONNX,
 )
-from VoiceChangerParamsManager import VoiceChangerParamsManager
+from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 
 
 def export2onnx(gpu: int, modelSlot: RVCModelSlot):

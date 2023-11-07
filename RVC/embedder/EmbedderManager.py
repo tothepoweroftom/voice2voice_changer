@@ -1,6 +1,6 @@
 from torch import device
 
-from const import EmbedderType
+from utils.const import EmbedderType
 from RVC.embedder.Embedder import Embedder
 from RVC.embedder.FairseqContentvec import FairseqContentvec
 from RVC.embedder.FairseqHubert import FairseqHubert

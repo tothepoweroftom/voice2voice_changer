@@ -1,5 +1,5 @@
 import numpy as np
-from const import PitchExtractorType
+from utils.const import PitchExtractorType
 from DiffusionSVC.pitchExtractor.PitchExtractor import PitchExtractor
 from DiffusionSVC.pitchExtractor.rmvpe.rmvpe import RMVPE
 from RVC.deviceManager.DeviceManager import DeviceManager

@@ -1,5 +1,5 @@
 from typing import Protocol
-from const import PitchExtractorType
+from utils.const import PitchExtractorType
 from RVC.pitchExtractor.CrepeOnnxPitchExtractor import CrepeOnnxPitchExtractor
 from RVC.pitchExtractor.DioPitchExtractor import DioPitchExtractor
 from RVC.pitchExtractor.HarvestPitchExtractor import HarvestPitchExtractor
@@ -22,7 +22,7 @@ class PitchExtractorManager(Protocol):
     def getPitchExtractor(
         cls, pitchExtractorType: PitchExtractorType, gpu: int
     ) -> PitchExtractor:
-        cls.currentPitchExtractor = cls.loadPitchExtractor(pitchExtractorType,  gpu)
+        cls.currentPitchExtractor = cls.loadPitchExtractor(pitchExtractorType, gpu)
         return cls.currentPitchExtractor
 
     @classmethod
