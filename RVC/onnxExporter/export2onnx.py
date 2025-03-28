@@ -27,9 +27,10 @@ from RVC.onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
 from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 
 
-def export2onnx(gpu: int, modelSlot: RVCModelSlot):
+def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str):
     vcparams = VoiceChangerParamsManager.get_instance().params
-    modelFile = os.path.join(vcparams.model_dir, str(modelSlot.slotIndex), os.path.basename(modelSlot.modelFile))
+    # manually set from string modelFile
+    modelFile = modelFileName
 
     output_file = os.path.splitext(os.path.basename(modelFile))[0] + ".onnx"
     output_file_simple = os.path.splitext(os.path.basename(modelFile))[0] + "_simple.onnx"
@@ -50,7 +51,7 @@ def export2onnx(gpu: int, modelSlot: RVCModelSlot):
     print(f"[Voice Changer] exporting onnx... gpu_id:{gpu} gpu_mem:{gpuMomory}")
 
     if gpuMomory > 0:
-        _export2onnx(modelFile, output_path, output_path_simple, True, metadata)
+        _export2onnx(modelFile, output_path, output_path_simple, False, metadata)
     else:
         print("[Voice Changer] Warning!!! onnx export with float32. maybe size is doubled.")
         _export2onnx(modelFile, output_path, output_path_simple, False, metadata)
@@ -59,11 +60,14 @@ def export2onnx(gpu: int, modelSlot: RVCModelSlot):
 
 def _export2onnx(input_model, output_model, output_model_simple, is_half, metadata):
     cpt = torch.load(input_model, map_location="cpu")
+
+    
     if is_half:
         dev = torch.device("cuda", index=0)
     else:
-        dev = torch.device("cpu")
+        dev = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
 
+    
     # EnumInferenceTypesのままだとシリアライズできないのでテキスト化
     if metadata["modelType"] == EnumInferenceTypes.pyTorchRVC.value:
         net_g_onnx = SynthesizerTrnMs256NSFsid_ONNX(*cpt["config"], is_half=is_half)
@@ -144,3 +148,5 @@ def _export2onnx(input_model, output_model, output_model_simple, is_half, metada
     meta.key = "metadata"
     meta.value = json.dumps(metadata)
     onnx.save(model_simp, output_model_simple)
+
+
