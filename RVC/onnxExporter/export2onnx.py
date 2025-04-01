@@ -27,7 +27,7 @@ from RVC.onnxExporter.SynthesizerTrnMsNSFsid_webui_ONNX import (
 from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 
 
-def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str):
+def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str, float16Setting: bool):
     vcparams = VoiceChangerParamsManager.get_instance().params
     # manually set from string modelFile
     modelFile = modelFileName
@@ -51,10 +51,10 @@ def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str):
     print(f"[Voice Changer] exporting onnx... gpu_id:{gpu} gpu_mem:{gpuMomory}")
 
     if gpuMomory > 0:
-        _export2onnx(modelFile, output_path, output_path_simple, False, metadata)
+        _export2onnx(modelFile, output_path, output_path_simple, float16Setting, metadata)
     else:
         print("[Voice Changer] Warning!!! onnx export with float32. maybe size is doubled.")
-        _export2onnx(modelFile, output_path, output_path_simple, False, metadata)
+        _export2onnx(modelFile, output_path, output_path_simple, float16Setting, metadata)
     return output_file_simple
 
 
