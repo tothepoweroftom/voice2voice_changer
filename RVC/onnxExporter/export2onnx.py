@@ -29,8 +29,9 @@ from VoiceChanger.VoiceChangerParamsManager import VoiceChangerParamsManager
 
 def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str, float16Setting: bool):
     vcparams = VoiceChangerParamsManager.get_instance().params
-    # manually set from string modelFile
     modelFile = modelFileName
+
+    os.makedirs(TMP_DIR, exist_ok=True)
 
     output_file = os.path.splitext(os.path.basename(modelFile))[0] + ".onnx"
     output_file_simple = os.path.splitext(os.path.basename(modelFile))[0] + "_simple.onnx"
@@ -61,14 +62,11 @@ def export2onnx(gpu: int, modelSlot: RVCModelSlot, modelFileName: str, float16Se
 def _export2onnx(input_model, output_model, output_model_simple, is_half, metadata):
     cpt = torch.load(input_model, map_location="cpu")
 
-    
     if is_half:
         dev = torch.device("cuda", index=0)
     else:
         dev = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
 
-    
-    # EnumInferenceTypesのままだとシリアライズできないのでテキスト化
     if metadata["modelType"] == EnumInferenceTypes.pyTorchRVC.value:
         net_g_onnx = SynthesizerTrnMs256NSFsid_ONNX(*cpt["config"], is_half=is_half)
     elif metadata["modelType"] == EnumInferenceTypes.pyTorchWebUI.value:
@@ -92,8 +90,10 @@ def _export2onnx(input_model, output_model, output_model_simple, is_half, metada
     net_g_onnx.load_state_dict(cpt["weight"], strict=False)
     if is_half:
         net_g_onnx = net_g_onnx.half()
-    
-    featsLength = 64
+
+    # Trace-time dummy length. Picked to be non-standard so nothing downstream
+    # can silently bake this specific value as a constant shape.
+    featsLength = 137
 
     if is_half:
         feats = torch.HalfTensor(1, featsLength, metadata["embChannels"]).to(dev)
@@ -113,7 +113,19 @@ def _export2onnx(input_model, output_model, output_model_simple, is_half, metada
             pitchf,
             sid,
         )
-
+        dynamic_axes = {
+            "feats":  {1: "T"},
+            "pitch":  {1: "T"},
+            "pitchf": {1: "T"},
+            "audio":  {1: "audio_len"},
+        }
+        sim_input_shapes = {
+            "feats":  [1, featsLength, metadata["embChannels"]],
+            "p_len":  [1],
+            "pitch":  [1, featsLength],
+            "pitchf": [1, featsLength],
+            "sid":    [1],
+        }
     else:
         input_names = ["feats", "p_len", "sid"]
         inputs = (
@@ -121,33 +133,51 @@ def _export2onnx(input_model, output_model, output_model_simple, is_half, metada
             p_len,
             sid,
         )
+        dynamic_axes = {
+            "feats": {1: "T"},
+            "audio": {1: "audio_len"},
+        }
+        sim_input_shapes = {
+            "feats": [1, featsLength, metadata["embChannels"]],
+            "p_len": [1],
+            "sid":   [1],
+        }
 
-    output_names = [
-        "audio",
-    ]
+    output_names = ["audio"]
 
     torch.onnx.export(
         net_g_onnx,
         inputs,
         output_model,
-        dynamic_axes={
-            "feats": [1],
-            "pitch": [1],
-            "pitchf": [1],
-        },
+        dynamic_axes=dynamic_axes,
         do_constant_folding=False,
         opset_version=17,
         verbose=False,
         input_names=input_names,
         output_names=output_names,
-        dynamo=False
+        dynamo=False,
     )
 
     model_onnx2 = onnx.load(output_model)
-    model_simp, check = simplify(model_onnx2)
+
+    try:
+        model_simp, check = simplify(
+            model_onnx2,
+            dynamic_input_shape=True,
+            input_shapes=sim_input_shapes,
+        )
+    except TypeError:
+        # Newer onnxsim dropped `dynamic_input_shape`; skip simplification
+        # rather than risk a shape bake.
+        print("[Voice Changer] onnxsim version does not support dynamic_input_shape; skipping simplify.")
+        model_simp = model_onnx2
+        check = True
+
+    if not check:
+        print("[Voice Changer] Warning: onnxsim reported the simplified model does not match; saving unsimplified.")
+        model_simp = model_onnx2
+
     meta = model_simp.metadata_props.add()
     meta.key = "metadata"
     meta.value = json.dumps(metadata)
     onnx.save(model_simp, output_model_simple)
-
-
