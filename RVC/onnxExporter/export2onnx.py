@@ -140,6 +140,7 @@ def _export2onnx(input_model, output_model, output_model_simple, is_half, metada
         verbose=False,
         input_names=input_names,
         output_names=output_names,
+        dynamo=False
     )
 
     model_onnx2 = onnx.load(output_model)
